@@ -1,3 +1,6 @@
+# Helps look at dataset structure
+
+
 import tensorflow as tf
 import numpy as np
 import data_reader
