@@ -85,6 +85,11 @@ def _parse_function(filename, label):
 
 dataset = dataset.map(_parse_function)
 
+# need to replace this input in gqn_tfr_provider
+# dataset = GQNTFRecordDataset(
+#       dataset, context_size, root, str_mode, custom_frame_size, num_threads,
+#       buffer_size)
+
 location = os.path.join(new_path, os.path.basename(file)
 
 pickle.dump(dataset, open(location,'wb'))
