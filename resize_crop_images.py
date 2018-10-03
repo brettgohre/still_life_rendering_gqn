@@ -1,3 +1,6 @@
+# Crop photos to 64x64 jpeg
+
+
 from PIL import Image
 import os
 
