@@ -1,3 +1,7 @@
+# Converts directory of images to tf.data.Dataset
+# Viewpoint information is attached according to sequence of photo in directory.
+# Viewpoint format: [x, y, z, sin(yaw), cos(yaw), sin(pitch, cos(pitch)]
+
 import tensorflow as tf
 import os
 import pickle
@@ -84,5 +88,3 @@ dataset = dataset.map(_parse_function)
 location = os.path.join(new_path, os.path.basename(file)
 
 pickle.dump(dataset, open(location,'wb'))
-
-#pickle.load(open(location,'rb'))
