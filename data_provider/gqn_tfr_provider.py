@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# Changes made by ogroth, stefan.
+# brettgohre added make_dataset iterator and various other modifications
 
 """Minimal data reader for GQN TFRecord datasets."""
 
@@ -23,6 +23,13 @@ from __future__ import print_function
 import collections
 import os
 import tensorflow as tf
+
+# Added packages for fruit stills preprocess
+import numpy as np
+from skimage.io import imread
+from glob import glob
+#
+
 nest = tf.contrib.framework.nest
 
 DatasetInfo = collections.namedtuple(
@@ -211,7 +218,9 @@ class DataReader(object):
 
   def read(self, batch_size):
     """Reads batch_size (query, target) pairs."""
-    frames, cameras = self._queue.dequeue_many(batch_size)
+    # frames, cameras = self._queue.dequeue_many(batch_size)
+    frames, cameras = next(make_dataset())
+    ######
     context_frames = frames[:, :-1]
     context_cameras = cameras[:, :-1]
     target = frames[:, -1]
@@ -232,8 +241,10 @@ class DataReader(object):
     }
     example = tf.parse_example(raw_data, feature_map)
     indices = self._get_randomized_indices()
-    frames = self._preprocess_frames(example, indices)
-    cameras = self._preprocess_cameras(example, indices)
+    # frames = self._preprocess_frames(example, indices)
+    # cameras = self._preprocess_cameras(example, indices)
+    frames, cameras = next(make_dataset())
+    ##############
     return frames, cameras
 
   def _get_randomized_indices(self):
@@ -361,8 +372,9 @@ class GQNTFRecordDataset(tf.data.Dataset):
     """Parses the data into tensors."""
     example = tf.parse_example(raw_data, self._feature_map)
     indices = self._get_randomized_indices()
-    frames = self._preprocess_frames(example, indices)
-    cameras = self._preprocess_cameras(example, indices)
+    # frames = self._preprocess_frames(example, indices)
+    # cameras = self._preprocess_cameras(example, indices)
+    frames, cameras = next(make_dataset())
     return frames, cameras
 
   def _get_randomized_indices(self):
@@ -424,6 +436,102 @@ class GQNTFRecordDataset(tf.data.Dataset):
   def output_types(self):
     return self._dataset.output_types
 
+##############################
+# The following are preprocess methods to create iterator
+# Iterator yields frames and cameras
+
+def make_dataset():
+    """Each time make_dataset is called, it returns a new numpy array batch of size 12, randomly drawn from data directory"""
+    # First 130 scenes. 12 facing away from wall.
+
+    list1 = np.arange(12).tolist()
+    views1 = [[-1., -1., 0., 0.707, 0.707, 0., 1.],
+            [-0.5, -1., 0., 1., 0., 0., 1.],
+            [0.5, -1., 0., 1., 0., 0., 1.],
+            [1., -1., 0., 0.707, -0.707, 0., 1.],
+            [1., -0.5, 0., 0., -1., 0., 1.],
+            [1., 0.5, 0., 0., -1., 0., 1.],
+            [1., 1., 0., -0.707, -0.707, 0., 1.],
+            [0.5, 1., 0., -1, 0., 0., 1.],
+            [-0.5, 1., 0., -1., 0., 0., 1.],
+            [-1., 1., 0., -0.707, 0.707, 0., 1.],
+            [-1., 0.5, 0., 0., 1., 0., 1.],
+            [-1, -0.5, 0., 0., 1., 0., 1.]]
+
+    # Scenes 131 and up. 8 center facing.
+    list1 = np.arange(8).tolist()
+    views2 = [[-1., -1., 0., 0.707, 0.707, 0., 1.],
+            [0., -1., 0., 1., 0., 0., 1.],
+            [1., -1., 0., 0.707, -0.707, 0., 1.],
+            [1., 0., 0., 0., -1., 0., 1.],
+            [1., 1., 0., -0.707, -0.707, 0., 1.],
+            [0., 1., 0., -1., 0., 0., 1.],
+            [-1., 1., 0., -0.707, 0.707, 0., 1.],
+            [-1., 0., 0., 0., 1., 0., 1.]]
+    
+    for batch in range(300):
+        final_frames = []
+        final_viewpoints = []
+        frames = np.ndarray(shape=(12, 6, 64, 64, 3), dtype=float)
+        viewpoints = np.ndarray(shape=(12, 6, 7), dtype=float)
+        folder_choices = np.random.choice(235, 12, replace=False)
+
+        for element in folder_choices:
+
+            if element < 129:
+                file_choices = []
+                view_choices = []
+                name = "/vol/fruit_stills/Scene" + str(element+1) + "/*"
+                list_of_files = glob(name)
+                index = np.random.choice(12, 6, replace=False).tolist()
+                for nn in index:
+                    nn = int(nn)
+                    view_choices.append(views1[nn])
+                    file_choices.append(list_of_files[nn])
+                frames = np.asarray([imread(file) for file in file_choices])
+                final_frames.append(frames)
+                viewpoints = np.asarray(view_choices)
+                final_viewpoints.append(viewpoints)
+
+            else:
+                file_choices = []
+                view_choices = []
+                name = "/vol/fruit_stills/Scene" + str(element+1) + "/*"
+                list_of_files = glob(name)
+                index = np.random.choice(8, 6, replace=False).tolist()
+                for nnn in index:
+                    nnn = int(nnn)
+                    view_choices.append(views2[nnn])
+                    file_choices.append(list_of_files[nnn])
+                frames = np.asarray([imread(file) for file in file_choices])
+                final_frames.append(frames)
+                viewpoints = np.asarray(view_choices)
+                final_viewpoints.append(viewpoints)
+
+
+        final_frames = np.asarray(final_frames)
+        final_frames = final_frames.astype(np.float32)
+        frames = 2 * ((1/255) * final_frames) - 1
+        frames = frames.astype(np.float32)
+        viewpoints = np.asarray(final_viewpoints)
+        viewpoints = viewpoints.astype(np.float32)
+        frames = tf.convert_to_tensor(frames, np.float32)
+        viewpoints = tf.convert_to_tensor(viewpoints, np.float32)
+        # tf_dataset = tf.data.Dataset.from_tensor_slices(frames, viewpoints)
+        yield frames, viewpoints
+
+# attempt at generator
+# def next_batch():
+#     """Each time next_batch is called, it returns a new tensor batch of size 12, randomly drawn from """
+#     # make_dataset() --> (12, 6, 64, 64, 3) , (12, 6, 7)
+#     frames, viewpoints = make_dataset()
+#     frames = tf.convert_to_tensor(frames, np.float32)
+#     viewpoints = tf.convert_to_tensor(viewpoints, np.float32)
+#     yield frames, viewpoints
+
+
+###############################
+
 
 def gqn_input_fn(
     dataset,
@@ -472,11 +580,11 @@ def gqn_input_fn(
     str_mode = 'test'
 
   dataset = GQNTFRecordDataset(
-      dataset, context_size, root, str_mode, custom_frame_size, num_threads,
-      buffer_size)
+       dataset, context_size, root, str_mode, custom_frame_size, num_threads,
+       buffer_size)
 
   if mode == tf.estimator.ModeKeys.TRAIN:
-    dataset = dataset.shuffle(buffer_size=(buffer_size * batch_size), seed=seed)
+      dataset = dataset.shuffle(buffer_size=(buffer_size * batch_size), seed=seed)
 
   dataset = dataset.repeat(num_epochs)
   dataset = dataset.batch(batch_size)
