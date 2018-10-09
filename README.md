@@ -25,12 +25,16 @@ Crop photos to (64, 64, 3) and collect paired viewpoints (x, y, z, sin(yaw), cos
 
 # next steps
 Feature loss & adversarial loss
+
 Sharpens generated image. Some blur due to noise on viewpoint labels resulting in image registration problem.
 
 # next domains
 Data efficient deep reinforcement learning
+
 Image classification with rotated objects
+
 Create large high resoltion dataset with Blender / Unity
+
 Transfer learning to illustrated dataset
 
 
