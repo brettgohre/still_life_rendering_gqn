@@ -3,6 +3,8 @@ Transfer learning to render a fruit still life from photos
 
 Author: Brett Göhre
 
+Slides: https://docs.google.com/presentation/d/182KZT1Qg1rY8qnroDytn-4z5ODFjNSYkfNlwbDJAI-o/edit?usp=sharing
+
 # Intention
 To train a generative query network (Eslami, et al 2018) on real still life photos. This computer vision system predicts how a 3D scene looks from any viewpoint after just a few 2D views from other viewpoints.
 
