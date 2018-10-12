@@ -3,18 +3,18 @@ Transfer learning to render a fruit still life from photos
 
 Author: Brett Göhre
 
-# main goal
+# Intention
 To train a generative query network (Eslami, et al 2018) on real still life photos. This computer vision system predicts how a 3D scene looks from any viewpoint after just a few 2D views from other viewpoints.
 
 The model learns to map sparse image observations of a scene to an abstract representation from which it "understands" the 3D spatial properties of the scene. At the same time, it learns to leverage this representation to "imagine" and generate images of the scene from unseen viewpoints.
 
-# strategy
+# Strategy
 Train on deepmind/gqn-dataset to satisfaction. Then use these learned weights the starting point for training on a new dataset found in fruit_stills_dataset.zip.
 
-# dataset
+# Dataset
 Photos and viewpoints collected by Brett Göhre. Novel dataset, fruit_stills_dataset.zip, is accompanied with data_iterator.py script to pair with viewpoint information.
 
-# training on deepmind dataset
+# Training on DeepMind dataset
 Visit deepmind/gqn-dataset for instructions of using gsutil cp to download dataset from google cloud storage.
 
 python3 train_gqn_draw.py --data_dir /vol --dataset rooms_ring_camera --model_dir gqn --debug
@@ -43,7 +43,7 @@ Transfer learning to illustrated dataset
 
 # acknowledgements
 
-Many thanks to the Deepmind authors, Oliver Groth, and Ștefan Săftescu. Without them this 4-week project would not have been possible.
+Many thanks to the DeepMind authors, Oliver Groth, and Ștefan Săftescu. Without them this 4-week project would not have been possible.
 
 Paper:
 
