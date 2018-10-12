@@ -49,9 +49,9 @@ Create large high resolution dataset with Blender / Unity
 
 Transfer learning to illustrated dataset
 
-# Acknowledgements
+# Acknowledgement
 
-Many, many thanks to the DeepMind authors, Oliver Groth, and Ștefan Săftescu. Without them this 4-week project would not have been possible.
+Utmost gratitude and respect to the DeepMind authors for their pioneering contributions. Many thanks to Oliver Groth and Ștefan Săftescu -- without their implementation, this 4-week project would not have been possible.
 
 Paper:
 
