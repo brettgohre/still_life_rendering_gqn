@@ -1,5 +1,6 @@
 # Neural Scene Rendering
 Transfer learning to render a fruit still life from photos
+
 Author: Brett Göhre
 
 # main goal
