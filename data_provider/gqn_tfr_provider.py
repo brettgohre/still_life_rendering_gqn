@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# brettgohre added make_dataset iterator and various other modifications
+# Changes made by ogroth, stefan.
 
 """Minimal data reader for GQN TFRecord datasets."""
 
@@ -469,45 +469,51 @@ def make_dataset():
             [-1., 1., 0., -0.707, 0.707, 0., 1.],
             [-1., 0., 0., 0., 1., 0., 1.]]
     
-    for batch in range(300):
-        final_frames = []
-        final_viewpoints = []
-        frames = np.ndarray(shape=(12, 6, 64, 64, 3), dtype=float)
-        viewpoints = np.ndarray(shape=(12, 6, 7), dtype=float)
-        folder_choices = np.random.choice(235, 12, replace=False)
+    folder_list = np.arange(235).tolist()
 
-        for element in folder_choices:
+    while True:
+        if (len(folder_list) >12):
+            final_frames = []
+            final_viewpoints = []
+            frames = np.ndarray(shape=(12, 6, 64, 64, 3), dtype=float)
+            viewpoints = np.ndarray(shape=(12, 6, 7), dtype=float)
 
-            if element < 129:
-                file_choices = []
-                view_choices = []
-                name = "/vol/fruit_stills/Scene" + str(element+1) + "/*"
-                list_of_files = glob(name)
-                index = np.random.choice(12, 6, replace=False).tolist()
-                for nn in index:
-                    nn = int(nn)
-                    view_choices.append(views1[nn])
-                    file_choices.append(list_of_files[nn])
-                frames = np.asarray([imread(file) for file in file_choices])
-                final_frames.append(frames)
-                viewpoints = np.asarray(view_choices)
-                final_viewpoints.append(viewpoints)
+            folder_choices = np.random.choice(folder_list, 12, replace=False)
+            [folder_list.remove(folder_choices[i]) for i in range(12)]
 
-            else:
-                file_choices = []
-                view_choices = []
-                name = "/vol/fruit_stills/Scene" + str(element+1) + "/*"
-                list_of_files = glob(name)
-                index = np.random.choice(8, 6, replace=False).tolist()
-                for nnn in index:
-                    nnn = int(nnn)
-                    view_choices.append(views2[nnn])
-                    file_choices.append(list_of_files[nnn])
-                frames = np.asarray([imread(file) for file in file_choices])
-                final_frames.append(frames)
-                viewpoints = np.asarray(view_choices)
-                final_viewpoints.append(viewpoints)
+            for element in folder_choices:
 
+                if element < 129:
+                    file_choices = []
+                    view_choices = []
+                    name = "/vol/fruit_stills/Scene" + str(element+1) + "/*"
+                    list_of_files = glob(name)
+                    index = np.random.choice(12, 6, replace=False).tolist()
+                    for nn in index:
+                        nn = int(nn)
+                        view_choices.append(views1[nn])
+                        file_choices.append(list_of_files[nn])
+                    frames = np.asarray([imread(file) for file in file_choices])
+                    final_frames.append(frames)
+                    viewpoints = np.asarray(view_choices)
+                    final_viewpoints.append(viewpoints)
+
+                else:
+                    file_choices = []
+                    view_choices = []
+                    name = "/vol/fruit_stills/Scene" + str(element+1) + "/*"
+                    list_of_files = glob(name)
+                    index = np.random.choice(8, 6, replace=False).tolist()
+                    for nnn in index:
+                        nnn = int(nnn)
+                        view_choices.append(views2[nnn])
+                        file_choices.append(list_of_files[nnn])
+                    frames = np.asarray([imread(file) for file in file_choices])
+                    final_frames.append(frames)
+                    viewpoints = np.asarray(view_choices)
+                    final_viewpoints.append(viewpoints)
+        else:
+            exit()
 
         final_frames = np.asarray(final_frames)
         final_frames = final_frames.astype(np.float32)
@@ -517,20 +523,7 @@ def make_dataset():
         viewpoints = viewpoints.astype(np.float32)
         frames = tf.convert_to_tensor(frames, np.float32)
         viewpoints = tf.convert_to_tensor(viewpoints, np.float32)
-        # tf_dataset = tf.data.Dataset.from_tensor_slices(frames, viewpoints)
         yield frames, viewpoints
-
-# attempt at generator
-# def next_batch():
-#     """Each time next_batch is called, it returns a new tensor batch of size 12, randomly drawn from """
-#     # make_dataset() --> (12, 6, 64, 64, 3) , (12, 6, 7)
-#     frames, viewpoints = make_dataset()
-#     frames = tf.convert_to_tensor(frames, np.float32)
-#     viewpoints = tf.convert_to_tensor(viewpoints, np.float32)
-#     yield frames, viewpoints
-
-
-###############################
 
 
 def gqn_input_fn(
@@ -600,3 +593,4 @@ def gqn_input_fn(
   context = Context(cameras=context_cameras, frames=context_frames)
   query = Query(context=context, query_camera=query_camera)
   return query, target  # default return pattern of input_fn: features, labels
+
