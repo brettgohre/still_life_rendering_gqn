@@ -12,9 +12,9 @@ To train a generative query network (Eslami, et al 2018) on real still life phot
 
 The model learns to map sparse image observations of a scene to an abstract representation from which it "understands" the 3D spatial properties of the scene. At the same time, it learns to leverage this representation to "imagine" and generate images of the scene from unseen viewpoints.
 
-![Fruit3](Fruit3.png)
-![Fruit_2](Fruit_2.png)
-![Fruit_1](Fruit_1.png)
+![results/Fruit3](results/Fruit3.png)
+![results/Fruit_2](results/Fruit_2.png)
+![results/Fruit_1](results/Fruit_1.png)
 
 # Strategy
 Train on deepmind/gqn-dataset to satisfaction. Then use these learned weights the starting point for training on a new dataset found in fruit_stills_dataset.zip.
