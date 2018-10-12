@@ -8,8 +8,6 @@ To train a generative query network (Eslami, et al 2018) on real still life phot
 
 The model learns to map sparse image observations of a scene to an abstract representation from which it "understands" the 3D spatial properties of the scene. At the same time, it learns to leverage this representation to "imagine" and generate images of the scene from unseen viewpoints.
 
-![Fruit1](Fruit1.png)
-![Fruit2](Fruit2.png)
 ![Fruit3](Fruit3.png)
 
 # Strategy
